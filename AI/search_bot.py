@@ -1,4 +1,4 @@
-!pip install ddgs
+%pip install ddgs
 from duckduckgo_search import DDGS
 
 def search(query, max_results=5):
