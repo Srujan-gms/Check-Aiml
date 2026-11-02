@@ -1,0 +1,54 @@
+
+# create simulator
+set val(stop)   10.0  
+set ns [new Simulator]
+#open trace file and NAM file
+set tracefile [open out.tr w]
+$ns trace-all $tracefile
+set namfile [open out.nam w]
+$ns namtrace-all $namfile
+
+
+#create Three Nodes
+set n0 [$ns node]
+set n1 [$ns node]
+set n2 [$ns node]
+#create TCP source$n0 label "TCP Source"
+$n1 label "Sink" 
+$ns color 1 blue
+#create Link between nodes
+$ns duplex-link $n0 $n1 1Mb 10ms DropTail
+$ns duplex-link $n1 $n2 1Mb 10ms DropTail 
+#make the link orientation
+$ns duplex-link-op $n0 $n1 orient right
+$ns duplex-link-op $n1 $n2 orient right 
+#set Queue Size
+$ns queue-limit $n0 $n1 10
+$ns queue-limit $n1 $n2 10
+#setup a Transport Layer connection
+set tcp [new Agent/TCP]
+$tcp set packetSize 1000
+set sink0 [new Agent/TCPSink]
+$ns attach-agent $n0 $tcp
+$ns attach-agent $n2 $sink0
+$ns connect $tcp $sink0
+set ftp [new Application/FTP]
+$ftp attach-agent $tcp
+$ns at 0.5 "$ftp start" 
+$ns at 2.0 "$ftp stop" 
+$ns at 2.5 “Finish”
+# Finish Procedure
+proc Finish {} {
+global ns tracefile namfile
+#dump all trace file and close file
+$ns flush-trace 
+close $tracefile
+close $namfile
+#execute NAM file
+exec nam out.nam &
+exec echo "The number of packet drops is " &
+exec grep -c "^d" out.tr & 
+exit 0
+}
+$ns run
+
