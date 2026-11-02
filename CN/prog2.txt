@@ -8,6 +8,9 @@ $ns trace-all $tracefile
 set namfile [open 3.nam w]
 $ns namtrace-all $namfile
 
+set n0 [$ns node]
+set n1 [$ns node]
+set n2 [$ns node]
 set n3 [$ns node]
 set n4 [$ns node]
 set n5 [$ns node]
